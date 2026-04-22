@@ -1,0 +1,434 @@
+<!DOCTYPE html>
+<html lang="ru">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Bingo Game</title>
+
+  <style>
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    :root {
+      --blue: #0050FF;
+      --green: #00875A;
+      --red: #CC0000;
+      --bg: #F4F3EF;
+      --surface: #FFFFFF;
+      --text-muted: #6B6B6B;
+      --border: #D8D6CF;
+      --cell-hover: #ECEAE4;
+      --mono: 'Courier New', monospace;
+      --sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
+    }
+
+    html,
+    body {
+      height: 100%;
+      font-family: var(--sans);
+      background: var(--bg);
+      -webkit-tap-highlight-color: transparent;
+      touch-action: manipulation;
+    }
+
+    body {
+      padding: clamp(0.75rem, 3vw, 2rem);
+    }
+
+    .page {
+      max-width: 600px;
+      margin: auto;
+    }
+
+    /* ── Login ── */
+    #loginScreen {
+      min-height: 60vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 1.25rem;
+    }
+
+    .login-title {
+      font-family: var(--mono);
+      font-size: clamp(20px, 7vw, 40px);
+      color: var(--blue);
+    }
+
+    .login-sub {
+      font-family: var(--mono);
+      font-size: clamp(10px, 3vw, 13px);
+      color: var(--text-muted);
+      letter-spacing: 0.08em;
+    }
+
+    .login-box {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      width: 100%;
+      max-width: 320px;
+    }
+
+    .login-input {
+      font-family: var(--mono);
+      font-size: clamp(13px, 3.5vw, 15px);
+      padding: 10px 14px;
+      border: 1px solid var(--border);
+      background: var(--surface);
+      border-radius: 2px;
+      outline: none;
+      width: 100%;
+      letter-spacing: 0.1em;
+      transition: border-color 0.2s;
+    }
+
+    .login-input:focus {
+      border-color: var(--blue);
+    }
+
+    .login-input.error {
+      border-color: var(--red);
+    }
+
+    .login-error {
+      font-family: var(--mono);
+      font-size: clamp(10px, 2.8vw, 11px);
+      color: var(--red);
+      text-align: center;
+      min-height: 1.2em;
+    }
+
+    /* ── Game ── */
+    #gameScreen {
+      display: none;
+    }
+
+    .header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 0.75rem;
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 0.75rem;
+      gap: 8px;
+    }
+
+    .title {
+      font-family: var(--mono);
+      font-size: clamp(28px, 10vw, 48px);
+      color: var(--blue);
+      line-height: 1;
+    }
+
+    .bingo-badge {
+      font-family: var(--mono);
+      font-size: clamp(14px, 4vw, 20px);
+      font-weight: bold;
+      color: var(--green);
+      opacity: 0;
+      transition: opacity 0.3s;
+      white-space: nowrap;
+    }
+
+    .bingo-badge.visible {
+      opacity: 1;
+    }
+
+    .controls {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 0.75rem;
+    }
+
+    .btn {
+      font-family: var(--mono);
+      font-size: clamp(10px, 2.8vw, 12px);
+      padding: 8px 14px;
+      border: 1px solid var(--border);
+      cursor: pointer;
+      background: var(--surface);
+      border-radius: 2px;
+      flex: 1;
+      text-align: center;
+      min-height: 36px;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    .btn-primary {
+      background: var(--blue);
+      color: white;
+      border-color: var(--blue);
+    }
+
+    .btn:active {
+      opacity: 0.8;
+    }
+
+    .progress {
+      margin-bottom: 0.75rem;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .bar {
+      flex: 1;
+      height: 5px;
+      background: var(--border);
+      border-radius: 2px;
+      overflow: hidden;
+    }
+
+    .fill {
+      height: 100%;
+      background: var(--blue);
+      width: 0%;
+      transition: width 0.3s ease;
+    }
+
+    .progress-label {
+      font-family: var(--mono);
+      font-size: clamp(10px, 2.8vw, 12px);
+      color: var(--text-muted);
+      white-space: nowrap;
+      min-width: 3.5em;
+      text-align: right;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: clamp(3px, 1vw, 6px);
+    }
+
+    .cell {
+      aspect-ratio: 1;
+      border: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      font-size: clamp(7px, 2.2vw, 11px);
+      line-height: 1.25;
+      padding: clamp(3px, 1vw, 7px);
+      cursor: pointer;
+      background: var(--surface);
+      border-radius: 2px;
+      transition: background 0.15s, color 0.15s, transform 0.1s;
+      word-break: break-word;
+      hyphens: auto;
+      -webkit-hyphens: auto;
+      user-select: none;
+    }
+
+    .cell:active {
+      transform: scale(0.95);
+    }
+
+    @media (hover: hover) {
+      .cell:hover {
+        background: var(--cell-hover);
+      }
+    }
+
+    .cell.marked {
+      background: var(--blue);
+      color: white;
+      border-color: var(--blue);
+    }
+
+    .cell.win {
+      background: var(--green);
+      color: white;
+      border-color: var(--green);
+    }
+
+    .cell.free {
+      background: var(--green);
+      color: white;
+      border-color: var(--green);
+      cursor: default;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="page">
+
+    <!-- Login screen -->
+    <div id="loginScreen">
+      <div class="login-title">Authorization</div>
+      <div class="login-sub">ВВЕДИТЕ ПАРОЛЬ</div>
+      <div class="login-box">
+        <input class="login-input" id="pwInput" type="password" placeholder="пароль" autocomplete="off"
+          onkeydown="if(event.key==='Enter') tryLogin()">
+        <button class="btn btn-primary" onclick="tryLogin()">Войти</button>
+        <div class="login-error" id="loginError"></div>
+      </div>
+    </div>
+
+    <!-- Game screen -->
+    <div id="gameScreen">
+      <div class="header">
+        <div class="title">Bingo!</div>
+        <div class="bingo-badge" id="bingoIndicator">🎉 BINGO!</div>
+      </div>
+
+      <div class="controls">
+        <button class="btn btn-primary" onclick="doShuffle()">Перемешать</button>
+        <button class="btn" onclick="resetMarks()">Сбросить</button>
+      </div>
+
+      <div class="progress">
+        <div class="bar">
+          <div class="fill" id="progress"></div>
+        </div>
+        <div class="progress-label" id="progressLabel">0 / 24</div>
+      </div>
+
+      <div class="grid" id="grid"></div>
+    </div>
+
+  </div>
+  <script>
+    const _h = "b75df299ef40f8aa050c93748197418e3131eab043782d6e004d93448b8c64b7";
+
+    // AES-GCM
+    const _d = {
+      iv: "7/a2JfNu+qtbALDY",
+      data: "CWsBLl5XdMrxWop0YZW6eyLIg8j6Ra4oCH7NeHYUnfqljdflGCTaV/FnT7dI3j1h2mqZd/sYj90ufof2HBdb80nOFQPEmiYQcZKa1R84hEUNnCv6AqucpF2Ii81GCiqwnti4fIr/vzgxMNtkUHF4Hp0DP1KJUwtdtFnvXhJAS6/x4HYEjxuoYiZNO5MTgCIdn+/iv9rdEj1AyZrOP9MYrG0zGaRdTZpwasfjxZIBXQzhjvvZ8SFP7ey5kcz1qHYHg3yDyzbklTDUtbg/71oJNEhlFMvNrDl0qLYMX/lqnLHj27F6I+l1dV5V+RM59yHTiZB2klAGFB6JdhXZLhqwihbRuj1qsNsTvmVwt+B8NvJBhqcd3H5w06mAoHMv2QbZd/kw0VX7S8hjv9VD0noHvC+oX8f4xIv1JFiMO7QdrUMB2IXTCTIk/OoMCP1KvJj+UVe0Dt0k7AA+Sk4yrP6sN9iaDLyPx0VZkvTz1gaBvNgSirRTj7N3C7hPVMK6wAWoBh4T3F9yy0/LEZonryag7m6pu9Ah2/SlCNfQ14xdwd+voE5u50pNWt6WTw+6cgSfoGe8GQYVFqwqysFx7c5U5CzL+Ql3pY/Jyk7zw9By+QoQqaKFOVPWDAJPghUf4Iu1KRjQ7wHRqbZvb/qM0tPRIHltDO/eNC9T4HKBHJVIbtkpLCUCmOGARx5TeGVSWSn1SXLlaNHQQNZOt11IafU0r7An7wD4CBtN/wntqXTKHC9dFZPcoItRJs6kbgaR3HNj5E9CEXbwIAY3ibXA2VkQef3Dc92PzIX8GoCxEaLXg2q7qBrWLjXCc+NbG3K9yglcCIqZq+qDTDRi/1Uue3rOHPAwBu5ZNo4hvU8OTFt2zJi1Hcg="
+    };
+
+    const _t = "3mlAKVaxiMUL5dpg";
+
+    function b64ToBytes(b64) {
+      return Uint8Array.from(atob(b64), c => c.charCodeAt(0));
+    }
+
+    async function _digest(str) {
+      const buf = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(str));
+      return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2, "0")).join("");
+    }
+
+    async function _loadContent() {
+      const raw = await crypto.subtle.importKey(
+        "raw", new TextEncoder().encode(_t), { name: "AES-GCM" }, false, ["decrypt"]
+      );
+      const iv = b64ToBytes(_d.iv);
+      const ciphertext = b64ToBytes(_d.data);
+      const plain = await crypto.subtle.decrypt({ name: "AES-GCM", iv }, raw, ciphertext);
+      return JSON.parse(new TextDecoder().decode(plain));
+    }
+
+    async function tryLogin() {
+      const input = document.getElementById("pwInput");
+      const err = document.getElementById("loginError");
+      input.classList.remove("error");
+      err.textContent = "";
+
+      const hash = await _digest(input.value);
+
+      if (hash === _h) {
+        try {
+          _words = await _loadContent();
+        } catch (e) {
+          err.textContent = "Ошибка загрузки данных";
+          return;
+        }
+        document.getElementById("loginScreen").style.display = "none";
+        document.getElementById("gameScreen").style.display = "block";
+        doShuffle();
+      } else {
+        input.classList.add("error");
+        err.textContent = "Неверный пароль";
+        input.value = "";
+        input.focus();
+      }
+    }
+
+    // ── Game ──────────────────────────────────────────────────────────────────────
+    var _words = [];   // populated after successful login
+    var SIZE = 5, CENTER = 12;
+    var LINES = [];
+
+    for (let r = 0; r < SIZE; r++) {
+      let row = []; for (let c = 0; c < SIZE; c++) row.push(r * SIZE + c); LINES.push(row);
+    }
+    for (let c = 0; c < SIZE; c++) {
+      let col = []; for (let r = 0; r < SIZE; r++) col.push(r * SIZE + c); LINES.push(col);
+    }
+    LINES.push([0, 6, 12, 18, 24]);
+    LINES.push([4, 8, 12, 16, 20]);
+
+    var board = [], marked = new Array(25).fill(false), completed = new Set();
+
+    function doShuffle() {
+      marked.fill(false); completed.clear();
+      let words = _words.slice().sort(() => Math.random() - 0.5);
+      while (words.length < 24) words.push("");
+      let w = 0;
+      for (let i = 0; i < 25; i++) {
+        board[i] = i === CENTER ? { type: 'free', value: 'FREE' } : { type: 'word', value: words[w++] };
+        if (i === CENTER) marked[i] = true;
+      }
+      document.getElementById('bingoIndicator').classList.remove('visible');
+      render(); updateProgress();
+    }
+
+    function resetMarks() {
+      marked.fill(false); marked[CENTER] = true; completed.clear();
+      document.getElementById('bingoIndicator').classList.remove('visible');
+      render(); updateProgress();
+    }
+
+    function isInCompletedLine(idx) {
+      for (let li of completed) if (LINES[li].includes(idx)) return true;
+      return false;
+    }
+
+    function render() {
+      const grid = document.getElementById('grid');
+      grid.innerHTML = '';
+      board.forEach((c, i) => {
+        const el = document.createElement('div');
+        el.className = 'cell';
+        if (c.type === 'free') el.classList.add('free');
+        else if (completed.size > 0 && isInCompletedLine(i)) el.classList.add('win');
+        else if (marked[i]) el.classList.add('marked');
+        el.textContent = c.value;
+        if (c.type === 'word') {
+          el.addEventListener('click', () => {
+            marked[i] = !marked[i]; checkBingo(); render(); updateProgress();
+          });
+        }
+        grid.appendChild(el);
+      });
+    }
+
+    function checkBingo() {
+      LINES.forEach((line, idx) => {
+        if (completed.has(idx)) return;
+        if (line.every(i => marked[i])) {
+          completed.add(idx);
+          document.getElementById('bingoIndicator').classList.add('visible');
+        }
+      });
+    }
+
+    function updateProgress() {
+      let count = board.reduce((a, c, i) => a + (c.type === 'word' && marked[i] ? 1 : 0), 0);
+      document.getElementById('progress').style.width = (count / 24 * 100) + '%';
+      document.getElementById('progressLabel').textContent = count + ' / 24';
+    }
+  </script>
+</body>
+
+</html>
