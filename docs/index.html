@@ -299,14 +299,16 @@
 
   </div>
   <script>
+    // ── Auth ──────────────────────────────────────────────────────────────────────
     const _h = "b75df299ef40f8aa050c93748197418e3131eab043782d6e004d93448b8c64b7";
 
-    // AES-GCM
+    // Encrypted word list (AES-GCM). Decryption happens in memory after login.
     const _d = {
-      iv: "7/a2JfNu+qtbALDY",
-      data: "CWsBLl5XdMrxWop0YZW6eyLIg8j6Ra4oCH7NeHYUnfqljdflGCTaV/FnT7dI3j1h2mqZd/sYj90ufof2HBdb80nOFQPEmiYQcZKa1R84hEUNnCv6AqucpF2Ii81GCiqwnti4fIr/vzgxMNtkUHF4Hp0DP1KJUwtdtFnvXhJAS6/x4HYEjxuoYiZNO5MTgCIdn+/iv9rdEj1AyZrOP9MYrG0zGaRdTZpwasfjxZIBXQzhjvvZ8SFP7ey5kcz1qHYHg3yDyzbklTDUtbg/71oJNEhlFMvNrDl0qLYMX/lqnLHj27F6I+l1dV5V+RM59yHTiZB2klAGFB6JdhXZLhqwihbRuj1qsNsTvmVwt+B8NvJBhqcd3H5w06mAoHMv2QbZd/kw0VX7S8hjv9VD0noHvC+oX8f4xIv1JFiMO7QdrUMB2IXTCTIk/OoMCP1KvJj+UVe0Dt0k7AA+Sk4yrP6sN9iaDLyPx0VZkvTz1gaBvNgSirRTj7N3C7hPVMK6wAWoBh4T3F9yy0/LEZonryag7m6pu9Ah2/SlCNfQ14xdwd+voE5u50pNWt6WTw+6cgSfoGe8GQYVFqwqysFx7c5U5CzL+Ql3pY/Jyk7zw9By+QoQqaKFOVPWDAJPghUf4Iu1KRjQ7wHRqbZvb/qM0tPRIHltDO/eNC9T4HKBHJVIbtkpLCUCmOGARx5TeGVSWSn1SXLlaNHQQNZOt11IafU0r7An7wD4CBtN/wntqXTKHC9dFZPcoItRJs6kbgaR3HNj5E9CEXbwIAY3ibXA2VkQef3Dc92PzIX8GoCxEaLXg2q7qBrWLjXCc+NbG3K9yglcCIqZq+qDTDRi/1Uue3rOHPAwBu5ZNo4hvU8OTFt2zJi1Hcg="
+      iv: "WKFWjznmsp1SpqYZ",
+      data: "5YQ2wCdIgl+7DSHNSmycjQ0nuxjTECx/Fs7Ne+GXc1gyDpDgZnjYP3/NyHlH+zbv7IptaMcf2WvstaqSW1qujDnoFGzJ68PC2ZFr9Q1a7UmvNB8C+lB1LRLPUPkDIW9uw44TldUwBO7XnCG1Wv3pxUmjAwONurKe3DjOXbB5FS8krk4BoV1gLZ+um/VcSb1/ytuSdJWtP6yYn1lOR7E8rgE1rJBYhw72gfvK+U7HPaAYjC4leeZKF+k0fgjg/GsoQ59U54im/Hn5nJSYtsbU1seqpsoousYKkUSyLdbByO6ZbMrrgqZ/WSm4jWfL60SVzyLh1p0KeOlTckt5lDs3hkNag92RbVnjTyWzh/WP4rGHcz/ed3Ezhi26c5vecRQmEocw3yooYLYVWE/dgMze6S+7r3YHUUzxKmhxEOSZiEyeE7sOKwHk9FHQ57EtgsHezbfSLejDoM6LM5ZVy736cOLx2rKm54b47bif2U+T9p97vCtJfIVJfClbHpF73T146XMP9ZbCo8Z/X7QO6SYIxguAZJKot0mx6bq5zS6+hSNkd76gADqREBe2/Fzk4z9REFxNRNloCewCSIMupCnAjdXA6MJRB06PADuH6Wa5c/0fCdizlujzs8G0NMk/s5D9g/igIBY+qoFqe2umSYlMYce/DlQFOPFnSrzzRcVBjzt1hUJUNbsv30ouKEo+pE+Hx/hHjsQHBx6wDxpixrTK2bcjPFhcZbY4CS+yNF+gLDkPOu62hXsSF3eR+njULdtqvqkjTQ8HoUERlk3KfoLfH4dojZ05NSqz6auKtl0HPWQyNDilXiRrXf2OCn7nx939XNswmRJPInSU0ucdFyxaVzEHhY9n16gWfJCwcOOcr8eycOxsPTk0/gDQ87OIM+evzRasbxBaM5mmyDb0ov+xARgChA58tjKFo6W7yCeZEdI8fA=="
     };
 
+    // Fixed 16-byte material derived from a project token — used as AES key source
     const _t = "3mlAKVaxiMUL5dpg";
 
     function b64ToBytes(b64) {
